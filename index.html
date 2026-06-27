@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mac 構成 & 価格カタログ</title>
+    <meta
+      name="description"
+      content="Mac の機種とスペックを選んで価格を確認。複数の構成を一覧で見比べられます。"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="inner">
+        <div class="brand"><span class="logo"></span> Mac 構成 &amp; 価格</div>
+        <div class="updated" id="updated"></div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h1>あなたにぴったりのMacを、構成して見比べる。</h1>
+      <p>
+        機種を選び、チップ・メモリ・ストレージを選んでいくと価格が表示されます。気になる構成は「比較に追加」で、複数まとめて一覧比較できます。
+      </p>
+    </section>
+
+    <main>
+      <h2 class="section-title"><span class="step">1</span>機種を選ぶ</h2>
+      <div class="model-grid" id="model-grid"></div>
+
+      <div id="builder-wrap"></div>
+
+      <h2 class="section-title"><span class="step">3</span>構成を見比べる</h2>
+      <div id="compare-wrap"></div>
+
+      <div class="note" id="note"></div>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
