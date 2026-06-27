@@ -84,6 +84,100 @@ a {
   line-height: 1.5;
 }
 
+/* ---------------------------------------------------- 学割トグル */
+.edu-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px auto 0;
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-soft);
+}
+.switch {
+  display: inline-flex;
+  cursor: pointer;
+}
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.switch .track {
+  position: relative;
+  width: 46px;
+  height: 27px;
+  border-radius: 999px;
+  background: #c7c7cc;
+  transition: background 0.2s ease;
+}
+.switch .thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+.switch input:checked + .track {
+  background: #34c759;
+}
+.switch input:checked + .track .thumb {
+  transform: translateX(19px);
+}
+.switch input:focus-visible + .track {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.edu-text {
+  text-align: left;
+  line-height: 1.25;
+}
+.edu-text b {
+  display: block;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.edu-status {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.edu-bar.on .edu-status {
+  color: #1a8a3c;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------- 学割の価格表示 */
+.price .list-strike {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-soft);
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+.edu-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e3f6e8;
+  color: #1a8a3c;
+  padding: 1px 8px;
+  border-radius: 999px;
+  margin-left: 6px;
+  vertical-align: 3px;
+}
+table.compare .price-cell .was {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-soft);
+  text-decoration: line-through;
+}
+
 /* ---------------------------------------------------- layout */
 main {
   max-width: var(--maxw);
@@ -338,6 +432,11 @@ main {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+}
+.compare-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .compare-empty {
   border: 2px dashed var(--line);

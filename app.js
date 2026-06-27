@@ -13,6 +13,7 @@
     chipId: MODELS[0].chips[0].id,
     memIdx: 0,
     storIdx: 0,
+    edu: false, // 学割（学生・教職員価格）の ON/OFF
     compare: [], // { uid, modelName, family, gen, chip, cpu, gpu, memory, storage, price, 数値群 }
   };
   var uidSeq = 1;
@@ -74,6 +75,23 @@
     var mem = c.memory[state.memIdx] || c.memory[0];
     var sto = c.storage[state.storIdx] || c.storage[0];
     return c.basePrice + mem.delta + sto.delta;
+  }
+
+  /* ---------- 学割（学生・教職員価格） ---------- */
+  function eduRate(family) {
+    var cfg = DATA.eduDiscount || {};
+    var byFam = cfg.byFamily || {};
+    return byFam[family] != null ? byFam[family] : (cfg.default || 0);
+  }
+  // 通常価格から学割の割引額・割引後価格を算出（¥100 単位に丸め）
+  function eduInfo(family, listPrice) {
+    var rate = eduRate(family);
+    var discount = Math.round((listPrice * rate) / 100) * 100;
+    return { list: listPrice, discount: discount, final: listPrice - discount, rate: rate };
+  }
+  // 表示・比較で使う実効価格（学割 ON なら割引後）
+  function effPrice(x) {
+    return state.edu ? eduInfo(x.family, x.price).final : x.price;
   }
 
   /* ---------- SVG アイコン（機種シルエット） ---------- */
@@ -167,6 +185,17 @@
     });
   }
 
+  // サマリー価格の HTML（学割 ON なら割引後＋元値の取り消し線）
+  function summaryPriceHtml(family, listPrice) {
+    if (!state.edu) return yen(listPrice);
+    var ed = eduInfo(family, listPrice);
+    return (
+      yen(ed.final) +
+      '<span class="list-strike">' + yen(listPrice) + "</span>" +
+      '<span class="edu-tag">学割 -' + yen(ed.discount) + "</span>"
+    );
+  }
+
   /* ---------- 2. 構成ビルダー ---------- */
   function renderBuilder() {
     var wrap = document.getElementById("builder-wrap");
@@ -194,8 +223,9 @@
         "</div>" +
         '<div class="summary">' +
           "<div>" +
-            '<div class="price-label">合計（税込・参考価格）</div>' +
-            '<div class="price">' + yen(currentPrice()) +
+            '<div class="price-label">合計（税込・参考価格）' +
+              (state.edu ? "・学割適用" : "") + "</div>" +
+            '<div class="price">' + summaryPriceHtml(m.family, currentPrice()) +
               "<small>" + c.name + " / " + c.memory[state.memIdx].label +
               " / " + c.storage[state.storIdx].label + "</small>" +
             "</div>" +
@@ -369,7 +399,7 @@
     }
 
     var items = state.compare;
-    var minPrice = Math.min.apply(null, items.map(function (x) { return x.price; }));
+    var minPrice = Math.min.apply(null, items.map(effPrice));
 
     var rows = [
       { label: "機種", get: function (x) {
@@ -390,11 +420,18 @@
       { label: "ストレージ", get: function (x, b, isBase) {
           return x.storage + (isBase ? "" : diffStorage(x.stoGB - b.stoGB));
         } },
-      { label: "価格（税込・参考）", get: function (x, b, isBase) {
-          var best = x.price === minPrice && items.length > 1;
+      { label: (state.edu ? "価格（学割・参考）" : "価格（税込・参考）"),
+        get: function (x, b, isBase) {
+          var px = effPrice(x);
+          var best = px === minPrice && items.length > 1;
+          var was = state.edu
+            ? '<span class="was">' + yen(x.price) + "</span>"
+            : "";
           return '<span class="price-cell' + (best ? " best" : "") + '">' +
-                 yen(x.price) + (best ? " 最安" : "") + "</span>" +
-                 (isBase ? ' <span class="diff base-tag">基準</span>' : diffYen(x.price - b.price));
+                 was + yen(px) + (best ? " 最安" : "") + "</span>" +
+                 (isBase
+                   ? ' <span class="diff base-tag">基準</span>'
+                   : diffYen(px - effPrice(b)));
         } },
     ];
 
@@ -422,7 +459,11 @@
             ? '<span class="compare-hint">左端（構成1）を基準に差分を表示</span>'
             : "") +
         "</div>" +
-        '<button class="btn ghost small" id="clear-compare">すべてクリア</button>' +
+        '<div class="compare-actions">' +
+          '<button class="btn ghost small" id="export-json">AI用にJSONをコピー</button>' +
+          '<button class="btn ghost small" id="download-json">JSONを保存</button>' +
+          '<button class="btn ghost small" id="clear-compare">すべてクリア</button>' +
+        "</div>" +
       "</div>" +
       '<div class="compare-scroll"><table class="compare">' +
         "<thead><tr><th></th>" + headCols + "</tr></thead>" +
@@ -443,6 +484,94 @@
       state.compare = [];
       renderCompare();
     });
+    wrap.querySelector("#export-json").addEventListener("click", function () {
+      var json = JSON.stringify(buildExport(), null, 2);
+      copyText(json, "JSONをコピーしました。AIチャットに貼り付けてください");
+    });
+    wrap.querySelector("#download-json").addEventListener("click", function () {
+      downloadJSON(JSON.stringify(buildExport(), null, 2));
+    });
+  }
+
+  /* ---------- JSON エクスポート（AI チャットに渡す用） ---------- */
+  function buildExport() {
+    var items = state.compare;
+    var minP = items.length
+      ? Math.min.apply(null, items.map(effPrice))
+      : 0;
+    return {
+      meta: {
+        タイトル: "Mac 構成比較",
+        出典: DATA.source,
+        価格時点: DATA.updated,
+        通貨: "JPY",
+        学割: state.edu,
+        学割メモ: state.edu && DATA.eduDiscount ? DATA.eduDiscount.note : null,
+        件数: items.length,
+        備考:
+          "価格はすべて税込の参考概算値です。正確な価格・在庫は apple.com/jp を確認してください。",
+      },
+      構成: items.map(function (x, i) {
+        var ed = eduInfo(x.family, x.price);
+        var row = {
+          番号: i + 1,
+          機種: x.modelName,
+          ファミリー: x.family,
+          世代: x.gen,
+          チップ: x.chip,
+          CPU: x.cpu,
+          GPU: x.gpu,
+          メモリ: x.memory,
+          ストレージ: x.storage,
+          通常価格: x.price,
+        };
+        if (state.edu) {
+          row.学割価格 = ed.final;
+          row.学割割引額 = ed.discount;
+        }
+        row.最安 = items.length > 1 && effPrice(x) === minP;
+        return row;
+      }),
+    };
+  }
+
+  function copyText(text, okMsg) {
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.top = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast(okMsg);
+      } catch (e) {
+        showToast("コピーできませんでした");
+      }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast(okMsg);
+      }, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  function downloadJSON(text) {
+    var blob = new Blob([text], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "mac-compare.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("JSONを保存しました");
   }
 
   /* ---------- トースト ---------- */
@@ -469,9 +598,27 @@
       "※ 価格はすべて税込の参考価格です。ベース価格は " + DATA.updated +
       " の Apple 公式の開始価格に基づきます。メモリ・ストレージ等のアップグレード加算額は一般的な価格体系に基づく概算値で、実際の金額と異なる場合があります。" +
       "「前モデル」は各機種の発売時の定価を基準にした参考値で、現行モデル（最新価格）との金額差はあくまで目安です。" +
+      "学割（学生・教職員価格）はファミリー別の概算割引率による参考値で、実際の学生・教職員向けストアの価格とは異なる場合があります。" +
       "正確な価格・在庫・最新モデルは Apple 公式サイト（apple.com/jp）でご確認ください。";
     renderAll();
     renderCompare();
+    initEduToggle();
+  }
+
+  function initEduToggle() {
+    var toggle = document.getElementById("edu-toggle");
+    var bar = document.querySelector(".edu-bar");
+    var status = document.getElementById("edu-status");
+    if (!toggle) return;
+    toggle.checked = state.edu;
+    toggle.addEventListener("change", function () {
+      state.edu = toggle.checked;
+      if (bar) bar.classList.toggle("on", state.edu);
+      if (status) status.textContent = state.edu ? "オン" : "オフ";
+      renderBuilder();
+      renderCompare();
+      showToast(state.edu ? "学割価格を表示します" : "通常価格を表示します");
+    });
   }
 
   document.addEventListener("DOMContentLoaded", init);
