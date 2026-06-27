@@ -94,16 +94,20 @@ a {
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--bg-soft);
-}
-.switch {
-  display: inline-flex;
   cursor: pointer;
+  user-select: none;
 }
-.switch input {
+.edu-bar:hover {
+  border-color: #b0b0b6;
+}
+#edu-toggle {
   position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
+}
+.switch {
+  display: inline-flex;
 }
 .switch .track {
   position: relative;
@@ -124,13 +128,13 @@ a {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease;
 }
-.switch input:checked + .track {
+#edu-toggle:checked ~ .switch .track {
   background: #34c759;
 }
-.switch input:checked + .track .thumb {
+#edu-toggle:checked ~ .switch .track .thumb {
   transform: translateX(19px);
 }
-.switch input:focus-visible + .track {
+#edu-toggle:focus-visible ~ .switch .track {
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .edu-text {
