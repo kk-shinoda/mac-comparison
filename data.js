@@ -8,8 +8,8 @@
  * 価格計算: 最終価格 = chip.basePrice + memory.delta + storage.delta + (gpu.delta)
  */
 window.MAC_DATA = {
-  updated: "2026年6月時点（2026/6/25 価格改定を反映）",
-  source: "Apple 公式の開始価格を基準とした参考値。アップグレード加算は概算。",
+  updated: "2026年6月時点（Apple公式サイトの表示価格を実測して反映）",
+  source: "各機種の開始価格はApple公式サイトの表示価格（2026年6月実測）。メモリ/ストレージのアップグレード加算額は概算。Mac Proは2023年モデルで販売終了。",
 
   /*
    * 学割（学生・教職員向けストア）の割引設定 — 参考概算値
@@ -48,7 +48,7 @@ window.MAC_DATA = {
           name: "M5",
           cpu: "10コアCPU",
           gpu: "8コアGPU",
-          basePrice: 184800,
+          basePrice: 224800,
           memory: [
             { label: "16GB", delta: 0 },
             { label: "24GB", delta: 30000 },
@@ -65,7 +65,7 @@ window.MAC_DATA = {
           name: "M5",
           cpu: "10コアCPU",
           gpu: "10コアGPU",
-          basePrice: 199800,
+          basePrice: 242800,
           memory: [
             { label: "16GB", delta: 0 },
             { label: "24GB", delta: 30000 },
@@ -94,7 +94,7 @@ window.MAC_DATA = {
           name: "M5",
           cpu: "10コアCPU",
           gpu: "10コアGPU",
-          basePrice: 219800,
+          basePrice: 264800,
           memory: [
             { label: "16GB", delta: 0 },
             { label: "24GB", delta: 30000 },
@@ -125,7 +125,7 @@ window.MAC_DATA = {
           name: "M5",
           cpu: "10コアCPU",
           gpu: "10コアGPU",
-          basePrice: 279800,
+          basePrice: 339800,
           memory: [
             { label: "16GB", delta: 0 },
             { label: "24GB", delta: 30000 },
@@ -141,9 +141,9 @@ window.MAC_DATA = {
         {
           id: "m5pro",
           name: "M5 Pro",
-          cpu: "14コアCPU",
-          gpu: "20コアGPU",
-          basePrice: 369800,
+          cpu: "15コアCPU",
+          gpu: "16コアGPU",
+          basePrice: 429800,
           memory: [
             { label: "24GB", delta: 0 },
             { label: "36GB", delta: 30000 },
@@ -160,9 +160,9 @@ window.MAC_DATA = {
         {
           id: "m5max",
           name: "M5 Max",
-          cpu: "16コアCPU",
-          gpu: "40コアGPU",
-          basePrice: 599800,
+          cpu: "18コアCPU",
+          gpu: "32コアGPU",
+          basePrice: 699800,
           memory: [
             { label: "36GB", delta: 0 },
             { label: "48GB", delta: 60000 },
@@ -190,9 +190,9 @@ window.MAC_DATA = {
         {
           id: "m5pro",
           name: "M5 Pro",
-          cpu: "14コアCPU",
+          cpu: "18コアCPU",
           gpu: "20コアGPU",
-          basePrice: 449800,
+          basePrice: 519800,
           memory: [
             { label: "24GB", delta: 0 },
             { label: "36GB", delta: 30000 },
@@ -209,9 +209,9 @@ window.MAC_DATA = {
         {
           id: "m5max",
           name: "M5 Max",
-          cpu: "16コアCPU",
-          gpu: "40コアGPU",
-          basePrice: 649800,
+          cpu: "18コアCPU",
+          gpu: "32コアGPU",
+          basePrice: 749800,
           memory: [
             { label: "36GB", delta: 0 },
             { label: "48GB", delta: 60000 },
@@ -261,7 +261,7 @@ window.MAC_DATA = {
           name: "M4",
           cpu: "10コアCPU",
           gpu: "10コアGPU",
-          basePrice: 279800,
+          basePrice: 289800,
           memory: [
             { label: "16GB", delta: 0 },
             { label: "24GB", delta: 30000 },
@@ -309,7 +309,7 @@ window.MAC_DATA = {
           name: "M4 Pro",
           cpu: "12コアCPU",
           gpu: "16コアGPU",
-          basePrice: 249800,
+          basePrice: 279800,
           memory: [
             { label: "24GB", delta: 0 },
             { label: "48GB", delta: 90000 },
@@ -380,8 +380,8 @@ window.MAC_DATA = {
     {
       id: "macpro",
       family: "Mac Pro",
-      name: "Mac Pro",
-      tagline: "拡張性とパワーの頂点。",
+      name: "Mac Pro（2023・販売終了）",
+      tagline: "拡張性とパワーの頂点。2026年3月に販売終了。",
       type: "デスクトップ",
       accent: "#48484a",
       colors: ["シルバー"],
